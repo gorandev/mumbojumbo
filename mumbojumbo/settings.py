@@ -14,6 +14,8 @@ BOT_NAME = 'mumbojumbo'
 SPIDER_MODULES = ['mumbojumbo.spiders']
 NEWSPIDER_MODULE = 'mumbojumbo.spiders'
 
+FEED_URI = 'stdout:'
+FEED_FORMAT = 'json'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'mumbojumbo (+http://www.yourdomain.com)'

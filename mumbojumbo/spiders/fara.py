@@ -1,4 +1,5 @@
 import scrapy
+from dateutil.parser import parse
 from mumbojumbo.items import MumbojumboItem
 
 
@@ -36,7 +37,14 @@ class FaraSpider(scrapy.Spider):
 
         # the p_instance needs to be picked up from the first page, so it will
         # also be None on the first pass
-        print response.body
+
+        if \
+            "the source data of the report has been modified." \
+                in response.body:
+            # this means we've ran out of pages
+            yield None
+            return
+
         # response could be sent to another method so we don't clutter this one
         #
         # basically on the first pass we send the response to another method
@@ -46,8 +54,6 @@ class FaraSpider(scrapy.Spider):
         # and we also set the p_instance
         #
         # on later passes, we'll just send the response to the other method
-
-        yield self.parse_data(response)
 
         page = response.meta.get('page')
         p_instance = response.meta.get('p_instance')
@@ -92,11 +98,11 @@ class FaraSpider(scrapy.Spider):
         request.meta['p_instance'] = p_instance
         yield request
 
-    def parse_data(self, response):
         for tr in response.xpath(
             "//tr[@class='odd' or @class='even']"
         ).extract():
             selector = scrapy.Selector(text=tr)
+            # TODO: an ItemLoader would be great here
             foreign_principal = MumbojumboItem(
                 url='https://efile.fara.gov/pls/apex/' + selector.xpath(
                     "//td[contains(@headers,'LINK')]/a/@href"
@@ -113,9 +119,9 @@ class FaraSpider(scrapy.Spider):
                 foreign_principal=selector.xpath(
                     "//td[contains(@headers,'FP_NAME')]/text()"
                 ).extract_first(),
-                date=selector.xpath(
+                date=parse(selector.xpath(
                     "//td[contains(@headers,'REG_DATE')]/text()"
-                ).extract_first(),
+                ).extract_first()).isoformat() + 'Z',
                 registrant=selector.xpath(
                     "//td[contains(@headers,'REGISTRANT_NAME')]/text()"
                 ).extract_first()
@@ -125,7 +131,7 @@ class FaraSpider(scrapy.Spider):
                 callback=self.get_foreign_principal_exhibit_and_country
             )
             request.meta['item'] = foreign_principal
-            return request
+            yield request
 
     def get_foreign_principal_exhibit_and_country(self, response):
         selector = scrapy.Selector(response=response)
