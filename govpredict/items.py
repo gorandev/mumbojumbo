@@ -8,7 +8,7 @@
 import scrapy
 
 
-class MumbojumboItem(scrapy.Item):
+class GovPredictItem(scrapy.Item):
     url = scrapy.Field()
     country = scrapy.Field()
     state = scrapy.Field()

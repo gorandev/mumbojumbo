@@ -1,6 +1,6 @@
 import scrapy
 from dateutil.parser import parse
-from mumbojumbo.items import MumbojumboItem
+from govpredict.items import GovPredictItem
 
 
 class FaraSpider(scrapy.Spider):
@@ -103,7 +103,7 @@ class FaraSpider(scrapy.Spider):
         ).extract():
             selector = scrapy.Selector(text=tr)
             # TODO: an ItemLoader would be great here
-            foreign_principal = MumbojumboItem(
+            foreign_principal = GovPredictItem(
                 url='https://efile.fara.gov/pls/apex/' + selector.xpath(
                     "//td[contains(@headers,'LINK')]/a/@href"
                 ).extract_first(),
