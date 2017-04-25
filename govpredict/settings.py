@@ -14,8 +14,12 @@ BOT_NAME = 'govpredict'
 SPIDER_MODULES = ['govpredict.spiders']
 NEWSPIDER_MODULE = 'govpredict.spiders'
 
+FEED_EXPORTERS = {
+  'mongojsonlines': 'govpredict.exporters.JsonMongoLinesItemExporter'
+}
+
 FEED_URI = 'stdout:'
-FEED_FORMAT = 'json'
+FEED_FORMAT = 'mongojsonlines'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'govpredict (+http://www.yourdomain.com)'
